@@ -42,9 +42,12 @@ B1CalorimeterSD::B1CalorimeterSD(
                             G4int X_Layers,G4int Y_Layers,G4int Z_Layers)
  : G4VSensitiveDetector(name),
    fHitsCollection(nullptr),
-   fNofCells(X_Layers*Y_Layers*Z_Layers)
+  //  fNofCells(X_Layers*Y_Layers*Z_Layers)
+   fNofCells(X_Layers*Y_Layers) // 压缩掉Z轴
 {
   collectionName.insert(hitsCollectionName);
+  std::cout << "Detector is constucted with XLayers = " << X_Layers
+            << " YLayers = " << Y_Layers << " ZLayers = " << Z_Layers;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -65,20 +68,6 @@ void B1CalorimeterSD::Initialize(G4HCofThisEvent* hce)
   auto hcID 
     = G4SDManager::GetSDMpointer()->GetCollectionID(collectionName[0]);
   hce->AddHitsCollection( hcID, fHitsCollection ); 
-
-  // Create hits
-  // fNofCells for cells + one more for total sums 
-  // int i = 0;
-  // for(int x=1;x<X_Layers + 1;x++){
-  //   for(int y=1;y<Y_Layers + 1;y++){
-  //     for(int z=1;z<Z_Layers + 1;z++){
-  //           fHitsCollection->insert(new B1CalorHit());
-  //           copynumberReshape[i] = 10000*x + 100*y+z;
-  //           i++;
-  //     }
-  //   }
-  // }
-  // fHitsCollection->insert(new B1CalorHit());
 
     for (G4int i=0; i<fNofCells+1; i++ ) {
     // 在该 fHitsCollection 中创建hits，在此 fHitsCollection是一个存放hits到数组
@@ -106,10 +95,15 @@ G4bool B1CalorimeterSD::ProcessHits(G4Step* step,
 
   auto touchable = (step->GetPreStepPoint()->GetTouchable());
     
-  // Get calorimeter cell id 
-  cellID = touchable->GetCopyNumber(); // 得到这一step所处物理体的copynumber，但没有意义。
-  auto layerNumber = touchable->GetReplicaNumber(0); // 好的，实验表明，这个就是copynumber！！
+  // Get calorimeter cell id， 压缩掉Z轴，应当去 depth=1 的层
+  cellID = touchable->GetCopyNumber(1); // 得到这一step所处物理体的copynumber，但没有意义。
+  auto layerNumber = touchable->GetReplicaNumber(1); // 好的，实验表明，这个就是copynumber！！
  
+ // 得看看这个地方，GetCopyNumber(1) 是否还等于 GetReplicaNumber(1)，好吧，还是一样的
+// std::cout << "\n---------\n" << "GetCopyNumber(1) = " << cellID  
+//           << "\tGetReplicaNumber(1) = " << layerNumber << std::endl;
+// getchar(); // 暂停以调试
+
   // Get hit accounting data for this cell
   auto hit = (*fHitsCollection)[layerNumber];
   if ( ! hit ) {

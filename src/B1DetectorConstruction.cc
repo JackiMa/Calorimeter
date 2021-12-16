@@ -150,11 +150,32 @@ XYZ 从 1 开始计数
   G4LogicalVolume* logicPb =  new G4LogicalVolume(solidPb,Pb_mat,"PbLV");   
   G4LogicalVolume* logicCrystal =  new G4LogicalVolume(solidCrystal,Crystal_mat,"CrystalLV");    
   G4LogicalVolume* logicPlastics =  new G4LogicalVolume(solidPlastics,Plastics_mat,"PlasticsLV");    
-  // G4Box* solidDetUnit = new G4Box("DetUnit",  detUnit_XY/2, detUnit_XY/2, Detector_Z/2);
-  // G4LogicalVolume* logicDetUnit =  new G4LogicalVolume(solidDetUnit,world_mat,"DetUnitLV");
- G4double Z_pos;
+  G4Box* solidDetUnit = new G4Box("DetUnit",  detUnit_XY/2, detUnit_XY/2, Detector_Z/2);
+  G4LogicalVolume* logicDetUnit =  new G4LogicalVolume(solidDetUnit,world_mat,"DetUnitLV");
+ G4double Z_pos = 0*mm;
+ G4int Z_index = 0;
+ G4int copynumber;
+   Z_pos = -1/2.*Detector_Z + 1/2.*Fe_Z;
+   copynumber = Z_index; // copynmuber == -1 都是不要的
+      new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicFe,"Iron",logicDetUnit,false,-1,checkOverlaps);  
+      Z_pos = Z_pos + 1/2.*Fe_Z + 1/2.*Plastics_Z;
+      new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicPlastics,"Plastics",logicDetUnit,false,-1,checkOverlaps);  
+      Z_pos = Z_pos + 1/2.*Plastics_Z + 1/2.*Crystal_Z;
+      new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicCrystal,"Crystal",logicDetUnit,false,copynumber,checkOverlaps);  
+      for(Z_index = 1; Z_index < Z_Layers; Z_index++){ // 因为第一块Crystal编号0，这里从编号1开始
+        copynumber = Z_index; // copynmuber == -1 都是不要的
+        Z_pos = Z_pos + 1/2.*Crystal_Z + 1/2.*Pb_Z;
+        new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicPb,"Lead",logicDetUnit,false,-1,checkOverlaps);  
+        Z_pos = Z_pos + 1/2.*Pb_Z + 1/2.*Crystal_Z;
+        new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicCrystal,"Crystal",logicDetUnit,false,copynumber,checkOverlaps); 
+      }
+      Z_pos = Z_pos + 1/2.*Crystal_Z + 1/2.*Plastics_Z;
+      new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicPlastics,"Plastics",logicDetUnit,false,-1,checkOverlaps);  
+      Z_pos = Z_pos + 1/2.*Plastics_Z + 1/2.*Fe_Z;
+      new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicFe,"Iron",logicDetUnit,false,-1,checkOverlaps);  
 
- 
+
+
  
       
   /* Detector combined with 10 × 10 detUnit       
@@ -168,53 +189,22 @@ XYZ 从 1 开始计数
   G4LogicalVolume* logicDetector =  new G4LogicalVolume(solidDetector,world_mat,"DetectorLV");
   G4double X_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
   G4double Y_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
-  Z_pos = 0 * mm;
-  G4long copynumber = 0;
-  int Z_index;
+  copynumber = 0;
+ Z_pos = 0;
   for(int X_index = 0; X_index < 0+X_Layers;X_index++){
     Y_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
     for(int Y_index = 0; Y_index < 0+Y_Layers;Y_index++){
-      Z_index = 0; // Z begin with 0
-      copynumber = X_index * Y_Layers * Z_Layers + Y_index * Z_Layers + Z_index; // copynmuber == 0 都是不要的，需要的从0开始
+      copynumber = X_index * Y_Layers + Y_index ; // copynmuber == -1 都是不要的，需要的从0开始
        // place Fe,Pb,Crystal,Plastics within a detUnit
-      
-      Z_pos = -1/2.*Detector_Z + 1/2.*Fe_Z;
-      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicFe,"Iron",logicDetector,false,-1,checkOverlaps);  
-      Z_pos = Z_pos + 1/2.*Fe_Z + 1/2.*Plastics_Z;
-      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicPlastics,"Plastics",logicDetector,false,-1,checkOverlaps);  
-      Z_pos = Z_pos + 1/2.*Plastics_Z + 1/2.*Crystal_Z;
-      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicCrystal,"Crystal",logicDetector,false,copynumber,checkOverlaps);  
-
-std::cout << "Detector Condtruct copynumber = " << copynumber << std::endl; // 检查发现没有问题
-
-      for(Z_index = 1; Z_index < Z_Layers; Z_index++){ // 因为第一块Crystal编号0，这里从编号1开始
-        copynumber = X_index * Y_Layers * Z_Layers + Y_index * Z_Layers + Z_index; // copynmuber == 0 都是不要的
-        Z_pos = Z_pos + 1/2.*Crystal_Z + 1/2.*Pb_Z;
-        new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicPb,"Lead",logicDetector,false,-1,checkOverlaps);  
-        Z_pos = Z_pos + 1/2.*Pb_Z + 1/2.*Crystal_Z;
-        new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicCrystal,"Crystal",logicDetector,false,copynumber,checkOverlaps); 
-
-      std::cout << "Detector Condtruct copynumber = " << copynumber << std::endl;
-      // std::cin.get(); // 调试用
-
-
-      }
-      Z_pos = Z_pos + 1/2.*Crystal_Z + 1/2.*Plastics_Z;
-      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicPlastics,"Plastics",logicDetector,false,-1,checkOverlaps);  
-      Z_pos = Z_pos + 1/2.*Plastics_Z + 1/2.*Fe_Z;
-      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicFe,"Iron",logicDetector,false,-1,checkOverlaps);  
-
-
-
-      // new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicDetUnit,"detUnit",logicDetector,false,copynumber,checkOverlaps);  
+      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicDetUnit,"detUnit",logicDetector,false,copynumber,checkOverlaps);  
       Y_pos = Y_pos + 1.*detUnit_XY;
     }
     X_pos = X_pos + 1.*detUnit_XY;
   }
 
   // place detector in world
-  Z_pos = 0. * mm;
-  // Z_pos = -2708. * mm;
+  // Z_pos = 0. * mm;
+  Z_pos = -2708. * mm;
   new G4PVPlacement(0,                       //no rotation
                     G4ThreeVector(0,0,Z_pos),    //at position
                     logicDetector,             //its logical volume

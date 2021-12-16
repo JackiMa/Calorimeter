@@ -139,6 +139,7 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
 
   G4int x_index,y_index,z_index;
   G4double cellEdep;
+  std::cout << "z_index = " << z_index << std::endl; // 消除unused的警告。。
   for(int index = 0; index < NofCells-1; index++){
     
     // 第一个数据好像没有意义，但是B4c最后一个数据是求和？
@@ -147,17 +148,17 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
 
     if(cellEdep== 0) continue;
 
-    x_index = cellID / (gY_Layers*gZ_Layers);
-    y_index = (cellID - x_index*(gY_Layers*gZ_Layers)) / (gZ_Layers);
-    z_index = cellID - x_index*(gY_Layers*gZ_Layers) - y_index*(gZ_Layers);
+    x_index = cellID / (gY_Layers);
+    y_index = (cellID - x_index*gY_Layers);
+    // z_index = cellID - x_index*(gY_Layers*gZ_Layers) - y_index*(gZ_Layers);
     
     
       analysisManager->FillNtupleIColumn(0, eventID);
       analysisManager->FillNtupleIColumn(1,  cellID);
       analysisManager->FillNtupleIColumn(2,  x_index);
       analysisManager->FillNtupleIColumn(3,  y_index);
-      analysisManager->FillNtupleIColumn(4,  z_index);
-      analysisManager->FillNtupleDColumn(5, cellEdep);
+      // analysisManager->FillNtupleIColumn(4,  z_index); // 被折叠了
+      analysisManager->FillNtupleDColumn(4, cellEdep);
       analysisManager->AddNtupleRow(0);
 
 
@@ -168,7 +169,7 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
       fout << cellID << "\t" 
       << x_index << "\t" 
       << y_index << "\t" 
-      << z_index << "\t" 
+      // << z_index << "\t" 
       << cellEdep << std::endl;   //写入
       fout.close();            //关闭
     

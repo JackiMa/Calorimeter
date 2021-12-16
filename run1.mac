@@ -4,7 +4,7 @@
 # or interactively: Idle> /control/execute run1.mac
 #
 # Change the default number of workers (in multi-threading mode) 
-#/run/numberOfThreads 4
+/run/numberOfThreads 8
 #
 # Initialize kernel
 /run/initialize
@@ -13,7 +13,7 @@
 # electron 50 MeV in direction (0.,0.,1.)
 # 1 event with tracking/verbose
 #
-# /run/numberOfThreads 4
+
 /control/verbose 1
 /run/verbose 1
 /tracking/verbose 0

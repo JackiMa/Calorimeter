@@ -70,7 +70,7 @@ B1RunAction::B1RunAction()
   analysisManager->CreateNtupleIColumn("cell_ID"); //I型，XColumn = I,F,D,S // ntupleID = 0，很神奇。。这里如果指定ntupleID似乎不行
   analysisManager->CreateNtupleIColumn("x_index"); // 将cellID拆成xyz坐标
   analysisManager->CreateNtupleIColumn("y_index");
-  analysisManager->CreateNtupleIColumn("z_index");
+  // analysisManager->CreateNtupleIColumn("z_index"); // 被折叠了
   analysisManager->CreateNtupleDColumn("Edep"); //浮点型
 
   analysisManager->FinishNtuple(); // 创建好所有的Ntuple Colum后调用Finish
