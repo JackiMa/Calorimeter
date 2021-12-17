@@ -44,6 +44,7 @@
 
 
 int gX_Layers,gY_Layers,gZ_Layers;
+G4double gdetUnit_XY;
 
 namespace
 {
@@ -67,7 +68,7 @@ int main(int argc, char **argv)
   gX_Layers = 10; // 全局定义变量 探测器构型的XYZ
   gY_Layers = 10;
   gZ_Layers = 67;
-
+  gdetUnit_XY = 40.4;
 
 
   // Evaluate arguments
@@ -131,7 +132,7 @@ int main(int argc, char **argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  runManager->SetUserInitialization(new B1DetectorConstruction(gX_Layers,gY_Layers,gZ_Layers));
+  runManager->SetUserInitialization(new B1DetectorConstruction(gX_Layers,gY_Layers,gZ_Layers,gdetUnit_XY));
 
   // Physics list
   G4VModularPhysicsList *physicsList = new QBBC;

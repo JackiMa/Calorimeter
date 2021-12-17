@@ -39,11 +39,12 @@
 B1CalorimeterSD::B1CalorimeterSD(
                             const G4String& name, 
                             const G4String& hitsCollectionName,
-                            G4int X_Layers,G4int Y_Layers,G4int Z_Layers)
+                            G4int gX_Layers,G4int gY_Layers,G4int gZ_Layers)
  : G4VSensitiveDetector(name),
    fHitsCollection(nullptr),
+   X_Layers(gX_Layers),Y_Layers(gY_Layers),Z_Layers(gZ_Layers),
   //  fNofCells(X_Layers*Y_Layers*Z_Layers)
-   fNofCells(X_Layers*Y_Layers) // 压缩掉Z轴
+   fNofCells(gX_Layers*gY_Layers) // 压缩掉Z轴
 {
   collectionName.insert(hitsCollectionName);
   std::cout << "Detector is constucted with XLayers = " << X_Layers
@@ -95,27 +96,30 @@ G4bool B1CalorimeterSD::ProcessHits(G4Step* step,
 
   auto touchable = (step->GetPreStepPoint()->GetTouchable());
     
-  // Get calorimeter cell id， 压缩掉Z轴，应当去 depth=1 的层
-  cellID = touchable->GetCopyNumber(1); // 得到这一step所处物理体的copynumber，但没有意义。
-  auto layerNumber = touchable->GetReplicaNumber(1); // 好的，实验表明，这个就是copynumber！！
- 
+  // Get calorimeter cell id， 压缩掉Z轴，应当取 depth=1，2 的层
+  // cellID = touchable->GetCopyNumber(1); // 得到这一step所处物理体的copynumber，但没有意义。
+  auto layerNumberY = touchable->GetReplicaNumber(1); // 好的，实验表明，这个就是copynumber！！
+  auto layerNumberX = touchable->GetReplicaNumber(2); // 好的，实验表明，这个就是copynumber！！
+  cellID = layerNumberX*Y_Layers+layerNumberY; // 一维的cellID
+
  // 得看看这个地方，GetCopyNumber(1) 是否还等于 GetReplicaNumber(1)，好吧，还是一样的
 // std::cout << "\n---------\n" << "GetCopyNumber(1) = " << cellID  
 //           << "\tGetReplicaNumber(1) = " << layerNumber << std::endl;
 // getchar(); // 暂停以调试
 
   // Get hit accounting data for this cell
-  auto hit = (*fHitsCollection)[layerNumber];
+  auto hit = (*fHitsCollection)[cellID];
   if ( ! hit ) {
     G4ExceptionDescription msg;
-    msg << "Cannot access hit " << layerNumber; 
+    msg << "Cannot access hit " << layerNumberX; 
     G4Exception("B1CalorimeterSD::ProcessHits()",
       "MyCode0004", FatalException, msg);
   }         
 
 
-    hit->SetChamberNb(layerNumber); // 这两行应该是一个意思，
-    hit->SetCellID(cellID);
+    hit->SetChamberNbX(layerNumberX); // 返回X坐标，
+    hit->SetChamberNbY(layerNumberY); // 返回Y坐标，
+    hit->SetCellID(cellID); // 返回一维的坐标
 
 
   // Get hit for total accounting

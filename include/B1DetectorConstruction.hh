@@ -41,7 +41,7 @@ class G4LogicalVolume;
 class B1DetectorConstruction : public G4VUserDetectorConstruction
 {
   public:
-    B1DetectorConstruction(G4int gX_Layers,G4int gY_Layers,G4int gZ_Layers);
+    B1DetectorConstruction(G4int gX_Layers,G4int gY_Layers,G4int gZ_Layers, G4double gdetUnit_XY);
     virtual ~B1DetectorConstruction();
     virtual void ConstructSDandField();
 
@@ -52,6 +52,7 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
   protected:
     // G4LogicalVolume*  fScoringVolume;
     G4int fNofCrystal, X_Layers, Y_Layers, Z_Layers;
+    G4double detUnit_XY;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

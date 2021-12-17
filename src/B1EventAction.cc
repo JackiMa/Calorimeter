@@ -42,9 +42,43 @@
 #include <iomanip>
 
 #include<fstream>
+#include<algorithm>
+#include "Randomize.hh"
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 extern G4int gX_Layers,gY_Layers,gZ_Layers;
+extern G4double gdetUnit_XY;
+
+class DetectorUnitPoint{
+
+  public:
+    DetectorUnitPoint(G4int xindex, G4int yindex, G4double length, G4int gX_Layers, G4int gY_Layers){
+      counts = 0;
+      XIndex = xindex;
+      YIndex = yindex;
+      sideLen = length;
+
+      X = (XIndex - 1/2*gX_Layers)*sideLen;
+      Y = (YIndex - 1/2*gY_Layers)*sideLen;
+    }
+    bool isIn(G4double xr, G4double yr){
+      if( xr>=X && xr<X+sideLen && yr>=Y && yr<Y+sideLen){
+        counts += 1;
+        return 1;
+      }
+      else return 0;
+    }
+
+      public:
+    G4int XIndex,YIndex;
+    G4double X,Y; // 该Unit左下角的坐标
+    G4double sideLen; // 每一个unit的边长
+    G4int counts; // 统计撒点法求面积时，落在该Unit的数目
+};
+
+
+
+
 B1EventAction::B1EventAction(B1RunAction* /*runAction*/)
 : G4UserEventAction(),
   fAbsHCID(-1)
@@ -129,7 +163,10 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
 
   // fill histograms
   analysisManager->FillH1(0, absoHit->GetEdep());
-  
+  std::ofstream fout;           //创建ofstream，使用 csv 来存储数据
+  fout.open("result.csv",std::ios::app);   //关联一个文件
+
+
   // fill ntuple
   G4double cellID;
 
@@ -137,19 +174,27 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
   G4int NofCells = hitsCollection->entries(); 
 
 
-  G4int x_index,y_index,z_index;
+  G4int x_index,y_index;
   G4double cellEdep;
-  std::cout << "z_index = " << z_index << std::endl; // 消除unused的警告。。
+  G4double EdepList[NofCells-1] = {0};
+  // vector<G4double>EdepListv(EdepList,EdepList+NofCells-1);
+  std::vector <DetectorUnitPoint> UnitPointList;
+
   for(int index = 0; index < NofCells-1; index++){
-    
-    // 第一个数据好像没有意义，但是B4c最后一个数据是求和？
+    // 最后一个数据是求和，在这里没有意义
+
     cellID = (*hitsCollection)[index]->GetCellID();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
+    x_index = (*hitsCollection)[index]->GetChamberNbX();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
+    y_index = (*hitsCollection)[index]->GetChamberNbY();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
     cellEdep = (*hitsCollection)[index]->GetEdep();
+    EdepList[index] = cellEdep; // 沉积能量的列表
+
+    UnitPointList.push_back(DetectorUnitPoint(x_index, y_index, gdetUnit_XY, gX_Layers, gY_Layers));
 
     if(cellEdep== 0) continue;
 
-    x_index = cellID / (gY_Layers);
-    y_index = (cellID - x_index*gY_Layers);
+    // x_index = cellID / (gY_Layers);
+    // y_index = (cellID - x_index*gY_Layers);
     // z_index = cellID - x_index*(gY_Layers*gZ_Layers) - y_index*(gZ_Layers);
     
     
@@ -162,8 +207,6 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
       analysisManager->AddNtupleRow(0);
 
 
-      std::ofstream fout;           //创建ofstream
-      fout.open("result.csv",std::ios::app);   //关联一个文件
       fout << eventID << "\t";
       fout.width(4);
       fout << cellID << "\t" 
@@ -171,10 +214,30 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
       << y_index << "\t" 
       // << z_index << "\t" 
       << cellEdep << std::endl;   //写入
-      fout.close();            //关闭
+      
     
     // std::cout << eventID << "\t" << cellID << "\t" << (*hitsCollection)[index]->GetEdep()<<std::endl; // 测试用
   }
+  fout.close(); //关闭csv的数据流，不知道存储的时间比较长会不会出bug emmmm...
+
+  G4int maxIndex = std::max_element(EdepList, EdepList + NofCells-1) - EdepList;
+  bool isXOdd = gX_Layers % 2; // ==1 表示是奇数
+  bool isYOdd = gY_Layers % 2; 
+
+  G4double xr, yr; // 随机点的坐标
+  G4double Radius = 10; // 要计算圆柱的半径 这里统一以mm为单位，故省略
+  G4double theta, k, r; // 用于生成圆内均匀的随机数
+  for(int i=0;i<1e6;i++){
+    theta = G4UniformRand()*360; // 生成 [0,360]的随机数
+    k = G4UniformRand();
+    r = sqrt(k)*Radius;
+    xr = r*sin(theta);
+    yr = r*cos(theta);
+
+    UnitPointList[1].isIn(xr,yr);
+
+  }
+
 }  
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

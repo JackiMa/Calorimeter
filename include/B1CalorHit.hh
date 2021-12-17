@@ -64,17 +64,19 @@ public:
   void Add(G4double edep);
 
   // set methods
-  void SetChamberNb(G4int chamb) { fChamberNb = chamb; }
+  void SetChamberNbX(G4int chamb) { fChamberNbX = chamb; }
+  void SetChamberNbY(G4int chamb) { fChamberNbY = chamb; }
   void SetCellID(G4int CellID) { fCellID = CellID; }
 
   // get methods
   G4double GetEdep() const;
   G4double GetTrackLength() const;
-  G4int GetChamberNb() const { return fChamberNb; }
+  G4int GetChamberNbX() const { return fChamberNbX; }
+  G4int GetChamberNbY() const { return fChamberNbY; }
   G4int GetCellID() const { return fCellID; }
 
-public:
-  G4int fChamberNb;
+private:
+  G4int fChamberNbX,fChamberNbY;
   G4int fCellID=0;
   G4double fEdep; ///< Energy deposit in the sensitive volume
 };
