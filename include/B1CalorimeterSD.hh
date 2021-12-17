@@ -52,7 +52,7 @@ class B1CalorimeterSD : public G4VSensitiveDetector
   public:
     B1CalorimeterSD(const G4String& name, 
                      const G4String& hitsCollectionName,
-                     G4int X_Layers, G4int Y_Layers, G4int  Z_Layers);
+                     G4int gX_Layers, G4int gY_Layers, G4int  gZ_Layers);
     virtual ~B1CalorimeterSD();
   
     // methods from base class
@@ -65,7 +65,7 @@ class B1CalorimeterSD : public G4VSensitiveDetector
     B1CalorHitsCollection* fHitsCollection;
     G4int  fNofCells;
     G4int   cellID; // 灵敏体积的copynumber
-    G4int *copynumberReshape = new G4int[fNofCells]; 
+    G4int X_Layers, Y_Layers, Z_Layers;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

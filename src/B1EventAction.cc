@@ -137,19 +137,20 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
   G4int NofCells = hitsCollection->entries(); 
 
 
-  G4int x_index,y_index,z_index;
+  G4int x_index,y_index;
   G4double cellEdep;
-  std::cout << "z_index = " << z_index << std::endl; // 消除unused的警告。。
   for(int index = 0; index < NofCells-1; index++){
     
     // 第一个数据好像没有意义，但是B4c最后一个数据是求和？
     cellID = (*hitsCollection)[index]->GetCellID();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
+    x_index = (*hitsCollection)[index]->GetChamberNbX();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
+    y_index = (*hitsCollection)[index]->GetChamberNbY();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
     cellEdep = (*hitsCollection)[index]->GetEdep();
 
     if(cellEdep== 0) continue;
 
-    x_index = cellID / (gY_Layers);
-    y_index = (cellID - x_index*gY_Layers);
+    // x_index = cellID / (gY_Layers);
+    // y_index = (cellID - x_index*gY_Layers);
     // z_index = cellID - x_index*(gY_Layers*gZ_Layers) - y_index*(gZ_Layers);
     
     

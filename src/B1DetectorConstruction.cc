@@ -114,6 +114,7 @@ XYZ 从 1 开始计数
   G4String name, symbol; // a=mass of a mole;
   G4double a, z, density; // z=mean number of protons;
   G4int ncomponents, natoms;
+  G4double X_pos, Y_pos, Z_pos; // XYZ coordinate
   // element define
   a = 1.01*g/mole;    G4Element* elH = new G4Element(name="Hydrogen",symbol="H" , z= 1., a);
   a = 12.01*g/mole;   G4Element* elC = new G4Element(name="Carbon" ,symbol="C" , z= 6., a);
@@ -152,7 +153,7 @@ XYZ 从 1 开始计数
   G4LogicalVolume* logicPlastics =  new G4LogicalVolume(solidPlastics,Plastics_mat,"PlasticsLV");    
   G4Box* solidDetUnit = new G4Box("DetUnit",  detUnit_XY/2, detUnit_XY/2, Detector_Z/2);
   G4LogicalVolume* logicDetUnit =  new G4LogicalVolume(solidDetUnit,world_mat,"DetUnitLV");
- G4double Z_pos = 0*mm;
+  Z_pos = 0*mm;
  G4int Z_index = 0;
  G4int copynumber;
    Z_pos = -1/2.*Detector_Z + 1/2.*Fe_Z;
@@ -175,10 +176,26 @@ XYZ 从 1 开始计数
       new G4PVPlacement(0,G4ThreeVector(0,0,Z_pos),logicFe,"Iron",logicDetUnit,false,-1,checkOverlaps);  
 
 
+  /* DetectorWall combined with 10 × 1 detUnit with index Y       
+             -→ Y轴
+    ▓▓▓▓▓▓▓▓
+   ↓ X 轴 
+  */ 
+  G4Box* solidDetectorWall = new G4Box("Detector",  detUnit_XY/2, Detector_XY/2, Detector_Z/2);
+  G4LogicalVolume* logicDetectorWall =  new G4LogicalVolume(solidDetectorWall,world_mat,"DetectorWallLV");
+  Y_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
+  copynumber = 0;
+  Z_pos = 0; X_pos = 0;
+  Y_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
+ for(int Y_index = 0; Y_index < 0+Y_Layers;Y_index++){
+      copynumber = Y_index ; // copynmuber == -1 都是不要的，需要的从0开始
+      // place detectorUnit within a detectorWall
+      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicDetUnit,"detUnit",logicDetectorWall,false,copynumber,checkOverlaps);  
+      Y_pos = Y_pos + 1.*detUnit_XY;
+    }
 
- 
-      
-  /* Detector combined with 10 × 10 detUnit       
+
+  /* Detector combined with 1 × 10 DetectorWall with index X
              -→ Y轴
     ▓▓▓▓▓▓▓▓
     ▓▓▓▓▓▓▓▓
@@ -187,18 +204,13 @@ XYZ 从 1 开始计数
   */ 
   G4Box* solidDetector = new G4Box("Detector",  Detector_XY/2, Detector_XY/2, Detector_Z/2);
   G4LogicalVolume* logicDetector =  new G4LogicalVolume(solidDetector,world_mat,"DetectorLV");
-  G4double X_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
-  G4double Y_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
+  X_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
+  
   copynumber = 0;
- Z_pos = 0;
+  Z_pos = 0;Y_pos=0;
   for(int X_index = 0; X_index < 0+X_Layers;X_index++){
-    Y_pos = -1/2.*Detector_XY + 1/2.*detUnit_XY;
-    for(int Y_index = 0; Y_index < 0+Y_Layers;Y_index++){
-      copynumber = X_index * Y_Layers + Y_index ; // copynmuber == -1 都是不要的，需要的从0开始
-       // place Fe,Pb,Crystal,Plastics within a detUnit
-      new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicDetUnit,"detUnit",logicDetector,false,copynumber,checkOverlaps);  
-      Y_pos = Y_pos + 1.*detUnit_XY;
-    }
+    copynumber = X_index ; 
+    new G4PVPlacement(0,G4ThreeVector(X_pos,Y_pos,Z_pos),logicDetectorWall,"DetectorWall",logicDetector,false,copynumber,checkOverlaps); 
     X_pos = X_pos + 1.*detUnit_XY;
   }
 
