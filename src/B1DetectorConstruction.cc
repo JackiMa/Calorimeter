@@ -13,6 +13,7 @@
 #include "G4PVPlacement.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4VisAttributes.hh"
+// #include "PhysicalConstants.h"
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -37,7 +38,9 @@ G4VPhysicalVolume* B1DetectorConstruction::Construct()
   // Option to switch on/off checking of volumes overlaps
   //
   G4bool checkOverlaps = true;
-
+    G4String name, symbol; // a=mass of a mole;
+  G4double a, z, density; // z=mean number of protons;
+  G4int ncomponents, natoms;
 
   fNofCrystal = X_Layers* Y_Layers* Z_Layers;
 
@@ -83,9 +86,13 @@ XYZ 从 1 开始计数
   G4double world_sizeXY = 3.7 * m; // 大的总是好的
   G4double world_sizeZ  = 6. * m;
   // G4double world_sizeXY = 1 * m;
+  // What about vacuum ?  Vacuum is an ordinary gas with very low density
   // G4double world_sizeZ  = 2. * m;
-  G4Material* world_mat = nist->FindOrBuildMaterial("G4_AIR");
-  
+new G4Material(name="Galactic", z=1., a=1.01*g/mole, CLHEP::universe_mean_density,
+                   kStateGas,0.1*kelvin,1.e-19*pascal);
+  G4Material* world_mat = nist->FindOrBuildMaterial("Galactic");
+
+
   G4Box* solidWorld =    
     new G4Box("World",                       //its name
        0.5*world_sizeXY, 0.5*world_sizeXY, 0.5*world_sizeZ);     //its size
@@ -111,9 +118,6 @@ XYZ 从 1 开始计数
    ▓░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▓
    Fe C8H8   ... C8H8 ...   C8H8 Fe 
   */  
-  G4String name, symbol; // a=mass of a mole;
-  G4double a, z, density; // z=mean number of protons;
-  G4int ncomponents, natoms;
   G4double X_pos, Y_pos, Z_pos; // XYZ coordinate
   // element define
   a = 1.01*g/mole;    G4Element* elH = new G4Element(name="Hydrogen",symbol="H" , z= 1., a);

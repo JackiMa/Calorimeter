@@ -78,7 +78,7 @@ void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
   //  G4double pi=3.1415926;
   //  G4double phi=G4UniformRand()*2*pi;
-  //  G4double theta=acos(1.-G4UniformRand()*0.01/2/pi);
+  //  G4double theta=acos(1-0.00005*G4UniformRand());//acos(1.-G4UniformRand()*0.01/(2*pi)); // 是对的，cos[θ]的θ在[0,0.01]rad间抽样
   //  G4double x1 =sin(theta)*cos(phi);
   //  G4double y1 =sin(theta)*sin(phi);
   //  G4double z1 =-cos(theta);

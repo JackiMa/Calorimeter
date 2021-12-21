@@ -49,7 +49,7 @@ class B1DetectorConstruction : public G4VUserDetectorConstruction
     
     // G4LogicalVolume* GetScoringVolume() const { return fScoringVolume; }
 
-  protected:
+  public:
     // G4LogicalVolume*  fScoringVolume;
     G4int fNofCrystal, X_Layers, Y_Layers, Z_Layers;
     G4double detUnit_XY;
