@@ -41,85 +41,94 @@
 #include "Randomize.hh"
 #include <iomanip>
 
-#include<fstream>
+#include <fstream>
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-extern G4int gX_Layers,gY_Layers,gZ_Layers;
-B1EventAction::B1EventAction(B1RunAction* /*runAction*/)
-: G4UserEventAction(),
-  fAbsHCID(-1)
-{} 
+extern G4int gX_Layers, gY_Layers, gZ_Layers;
+extern std::string csvFileName; // 在主函数里声明的文件名
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-B1EventAction::~B1EventAction()
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-B1CalorHitsCollection* 
-B1EventAction::GetHitsCollection(G4int hcID,
-                                  const G4Event* event) const
+B1EventAction::B1EventAction(B1RunAction * /*runAction*/)
+    : G4UserEventAction(),
+      fAbsHCID(-1)
 {
-  auto hitsCollection 
-    = static_cast<B1CalorHitsCollection*>(
-        event->GetHCofThisEvent()->GetHC(hcID)); // 第 hcID 块灵敏体积
-  
-  if ( ! hitsCollection ) {
-    G4ExceptionDescription msg;
-    msg << "Cannot access hitsCollection ID " << hcID; 
-    G4Exception("B1EventAction::GetHitsCollection()",
-      "MyCode0003", FatalException, msg);
-  }         
-
-  return hitsCollection;
-}    
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void B1EventAction::PrintEventStatistics( G4double absoEdep) const
-{
-  // print event statistics
-  G4cout
-     << "   Absorber: total energy: " 
-     << std::setw(7) << G4BestUnit(absoEdep, "Energy")
-     << G4endl;
+  primaryPoint.x = 0;
+  primaryPoint.y = 0;
+  primaryPoint.z = 0;
+  primaryPoint.isDefined = false;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1EventAction::BeginOfEventAction(const G4Event* /*event*/)
-{}
+B1EventAction::~B1EventAction()
+{
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1EventAction::EndOfEventAction(const G4Event* event)
-{  
+B1CalorHitsCollection *
+B1EventAction::GetHitsCollection(G4int hcID,
+                                 const G4Event *event) const
+{
+  auto hitsCollection = static_cast<B1CalorHitsCollection *>(
+      event->GetHCofThisEvent()->GetHC(hcID)); // 第 hcID 块灵敏体积
+
+  if (!hitsCollection)
+  {
+    G4ExceptionDescription msg;
+    msg << "Cannot access hitsCollection ID " << hcID;
+    G4Exception("B1EventAction::GetHitsCollection()",
+                "MyCode0003", FatalException, msg);
+  }
+
+  return hitsCollection;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::PrintEventStatistics(G4double absoEdep) const
+{
+  // print event statistics
+  G4cout
+      << "   Absorber: total energy: "
+      << std::setw(7) << G4BestUnit(absoEdep, "Energy")
+      << G4endl;
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::BeginOfEventAction(const G4Event * /*event*/)
+{
+}
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+void B1EventAction::EndOfEventAction(const G4Event *event)
+{
   // Get hits collections IDs (only once)
-  if ( fAbsHCID == -1 ) {
-    fAbsHCID 
-      = G4SDManager::GetSDMpointer()->GetCollectionID("AbsorberHitsCollection");
+  if (fAbsHCID == -1)
+  {
+    fAbsHCID = G4SDManager::GetSDMpointer()->GetCollectionID("AbsorberHitsCollection");
   }
 
   // Get hits collections
   auto absoHC = GetHitsCollection(fAbsHCID, event);
-  
+
   // Get hit with total values
-  auto absoHit = (*absoHC)[absoHC->entries()-1];
- 
- 
+  auto absoHit = (*absoHC)[absoHC->entries() - 1];
+
   // Print per event (modulo n)
   //
-  // auto cellID = 
+  // auto cellID =
   auto eventID = event->GetEventID();
   auto printModulo = G4RunManager::GetRunManager()->GetPrintProgress();
-  if ( ( printModulo > 0 ) && ( eventID % printModulo == 0 ) ) {
-    G4cout << "---> End of event: " << eventID << G4endl;     
+  if ((printModulo > 0) && (eventID % printModulo == 0))
+  {
+    G4cout << "---> End of event: " << eventID << G4endl;
 
     PrintEventStatistics(
-      absoHit->GetEdep());
-  }  
-  
+        absoHit->GetEdep());
+  }
+
   // Fill histograms, ntuple
   //
 
@@ -129,55 +138,57 @@ void B1EventAction::EndOfEventAction(const G4Event* event)
 
   // fill histograms
   analysisManager->FillH1(0, absoHit->GetEdep());
-  
+
   // fill ntuple
   G4double cellID;
 
-  auto hitsCollection = static_cast<B1CalorHitsCollection*>(event->GetHCofThisEvent()->GetHC(0));
-  G4int NofCells = hitsCollection->entries(); 
+  auto hitsCollection = static_cast<B1CalorHitsCollection *>(event->GetHCofThisEvent()->GetHC(0));
+  G4int NofCells = hitsCollection->entries();
 
-
-  G4int x_index,y_index;
+  G4int x_index, y_index;
   G4double cellEdep;
-  for(int index = 0; index < NofCells-1; index++){
+  for (int index = 0; index < NofCells - 1; index++)
+  {
     // 最后一个数据是求和，在这里没有意义
 
-    cellID = (*hitsCollection)[index]->GetCellID();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
-    x_index = (*hitsCollection)[index]->GetChamberNbX();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
-    y_index = (*hitsCollection)[index]->GetChamberNbY();// 这个只是最后一次这个layers最后一次hit的信息，不是全部的
+    cellID = (*hitsCollection)[index]->GetCellID();      // 这个只是最后一次这个layers最后一次hit的信息，不是全部的
+    x_index = (*hitsCollection)[index]->GetChamberNbX(); 
+    y_index = (*hitsCollection)[index]->GetChamberNbY(); 
     cellEdep = (*hitsCollection)[index]->GetEdep();
 
-
-    if(cellEdep== 0) continue;
+    if (cellEdep == 0)
+      continue;// 跳过没有沉积能量的事例
 
     // x_index = cellID / (gY_Layers);
     // y_index = (cellID - x_index*gY_Layers);
     // z_index = cellID - x_index*(gY_Layers*gZ_Layers) - y_index*(gZ_Layers);
-    
-    
-      analysisManager->FillNtupleIColumn(0, eventID);
-      analysisManager->FillNtupleIColumn(1,  cellID);
-      analysisManager->FillNtupleIColumn(2,  x_index);
-      analysisManager->FillNtupleIColumn(3,  y_index);
-      // analysisManager->FillNtupleIColumn(4,  z_index); // 被折叠了
-      analysisManager->FillNtupleDColumn(4, cellEdep);
-      analysisManager->AddNtupleRow(0);
 
+    analysisManager->FillNtupleIColumn(0, eventID);
+    analysisManager->FillNtupleIColumn(1, cellID);
+    analysisManager->FillNtupleIColumn(2, x_index);
+    analysisManager->FillNtupleIColumn(3, y_index);
+    // analysisManager->FillNtupleIColumn(4,  z_index); // 被折叠了
+    analysisManager->FillNtupleDColumn(4, primaryPoint.x);  // 初级作用点的x坐标
+    analysisManager->FillNtupleDColumn(5, primaryPoint.y);  // 初级作用点的y坐标
+    analysisManager->FillNtupleDColumn(6, primaryPoint.z);  // 初级作用点的z坐标 没啥用
+    analysisManager->FillNtupleDColumn(7, cellEdep);  // 沉积能量
+    analysisManager->AddNtupleRow(0);
 
-      std::ofstream fout;           //创建ofstream
-      fout.open("result.csv",std::ios::app);   //关联一个文件
-      fout << eventID << "\t";
-      fout.width(4);
-      fout << cellID << "\t" 
-      << x_index << "\t" 
-      << y_index << "\t" 
-      // << z_index << "\t" 
-      << cellEdep << std::endl;   //写入
-      fout.close();            //关闭
-    
+    std::ofstream fout;                     //创建ofstream
+    fout.open(csvFileName, std::ios::app); //关联一个文件
+    fout << eventID << "\t";
+    fout.width(4);
+    fout << cellID << "\t"
+         << x_index << "\t"
+         << y_index << "\t"
+         << primaryPoint.x << "\t"
+         << primaryPoint.y << "\t"
+         << primaryPoint.z << "\t"
+         << cellEdep << std::endl; //写入
+    fout.close();                  //关闭
+
     // std::cout << eventID << "\t" << cellID << "\t" << (*hitsCollection)[index]->GetEdep()<<std::endl; // 测试用
   }
-
-}  
+}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

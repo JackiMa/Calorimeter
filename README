@@ -152,7 +152,7 @@ TODO:
    in the main() function in exampleB1.cc 
    The selection of the user command interface is then done automatically 
    according to the Geant4 configuration or it can be done explicitly via 
-   the third argument of the G4UIExecutive constructor (see exampleB4a.cc). 
+   the third argument of the G4UIExecutive constructor (see exampleB1.cc). 
  
  C- HOW TO RUN
 

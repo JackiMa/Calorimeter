@@ -57,6 +57,9 @@ class B1PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
   
   private:
     G4ParticleGun*  fParticleGun; // pointer a to G4 gun class
+    G4double x0;
+    G4double y0;
+    G4double z0;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

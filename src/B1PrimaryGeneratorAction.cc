@@ -56,6 +56,11 @@ B1PrimaryGeneratorAction::B1PrimaryGeneratorAction()
   fParticleGun->SetParticleDefinition(particle);
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,0.,-1.));
   fParticleGun->SetParticleEnergy(6.*MeV);
+
+  x0 = 0;
+  y0 = 0;
+  z0 = 2500 * mm;
+   fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0)); // 可以修改位置的定义方式
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -70,24 +75,25 @@ B1PrimaryGeneratorAction::~B1PrimaryGeneratorAction()
 void B1PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
 
-  G4double x0 = 0;
-  G4double y0 = 0;
-  G4double z0 = 2500 * mm;
+  // x0 = 0;
+  // y0 = 0;
+  // z0 = 2500 * mm;
   // G4double z0 = 100 * mm;
 
 
-  //  G4double pi=3.1415926;
-  //  G4double phi=G4UniformRand()*2*pi;
+   G4double pi=3.1415926;
+   G4double phi=G4UniformRand()*2*pi;
   //  G4double theta=acos(1-0.00005*G4UniformRand());//acos(1.-G4UniformRand()*0.01/(2*pi)); // 是对的，cos[θ]的θ在[0,0.01]rad间抽样
-  //  G4double x1 =sin(theta)*cos(phi);
-  //  G4double y1 =sin(theta)*sin(phi);
-  //  G4double z1 =-cos(theta);
+   G4double theta=acos(1-0.0002*G4UniformRand());//acos(1.-G4UniformRand()*0.02/(2*pi)); // 是对的，cos[θ]的θ在[0,0.01]rad间抽样
+   G4double x1 =sin(theta)*cos(phi);
+   G4double y1 =sin(theta)*sin(phi);
+   G4double z1 =-cos(theta);
 
-   G4double x1 =0 ;
-   G4double y1 =0 ;
-   G4double z1 =-1 ;
+  //  G4double x1 =0 ;
+  //  G4double y1 =0 ;
+  //  G4double z1 =-1 ;
 
-  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+  // fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
   fParticleGun->SetParticleMomentumDirection(G4ThreeVector(x1,y1,z1));
   
 

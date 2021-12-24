@@ -113,7 +113,7 @@ G4VPhysicalVolume *B1DetectorConstruction::Construct()
                         checkOverlaps);  // overlaps checking
 
   /*
-   DetectorUnit                 ————> Z轴
+   一个探测单元                  ————> Z轴
    ▓░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▓
    Fe C8H8   ... C8H8 ...   C8H8 Fe
   */
@@ -183,14 +183,13 @@ G4VPhysicalVolume *B1DetectorConstruction::Construct()
   Z_pos = Z_pos + 1 / 2. * Plastics_Z + 1 / 2. * Fe_Z;
   new G4PVPlacement(0, G4ThreeVector(0, 0, Z_pos), logicFe, "Iron", logicDetUnit, false, -1, checkOverlaps);
 
-  /*
-   detectorArray combined with 10 × 1 detUnit with index Y
-              ————> Y
-    ▓▓▓▓▓▓▓▓▓▓▓▓
-   ↓ X
+  /* DetectorWall combined with 10 × 1 detUnit with index Y
+             -→ Y轴
+    ▓▓▓▓▓▓▓▓
+   ↓ X 轴
   */
-  G4Box *soliddetectorArray = new G4Box("Detector", detUnit_XY / 2, Detector_XY / 2, Detector_Z / 2);
-  G4LogicalVolume *logicdetectorArray = new G4LogicalVolume(soliddetectorArray, world_mat, "detectorArrayLV");
+  G4Box *solidDetectorWall = new G4Box("Detector", detUnit_XY / 2, Detector_XY / 2, Detector_Z / 2);
+  G4LogicalVolume *logicDetectorWall = new G4LogicalVolume(solidDetectorWall, world_mat, "DetectorWallLV");
   Y_pos = -1 / 2. * Detector_XY + 1 / 2. * detUnit_XY;
   copynumber = 0;
   Z_pos = 0;
@@ -199,8 +198,8 @@ G4VPhysicalVolume *B1DetectorConstruction::Construct()
   for (int Y_index = 0; Y_index < 0 + Y_Layers; Y_index++)
   {
     copynumber = Y_index; // copynmuber == -1 都是不要的，需要的从0开始
-    // place detectorUnit within a detectorArray
-    new G4PVPlacement(0, G4ThreeVector(X_pos, Y_pos, Z_pos), logicDetUnit, "detUnit", logicdetectorArray, false, copynumber, checkOverlaps);
+    // place detectorUnit within a detectorWall
+    new G4PVPlacement(0, G4ThreeVector(X_pos, Y_pos, Z_pos), logicDetUnit, "detUnit", logicDetectorWall, false, copynumber, checkOverlaps);
     Y_pos = Y_pos + 1. * detUnit_XY;
   }
 
@@ -222,7 +221,7 @@ G4VPhysicalVolume *B1DetectorConstruction::Construct()
   for (int X_index = 0; X_index < 0 + X_Layers; X_index++)
   {
     copynumber = X_index;
-    new G4PVPlacement(0, G4ThreeVector(X_pos, Y_pos, Z_pos), logicdetectorArray, "detectorArray", logicDetector, false, copynumber, checkOverlaps);
+    new G4PVPlacement(0, G4ThreeVector(X_pos, Y_pos, Z_pos), logicDetectorWall, "DetectorWall", logicDetector, false, copynumber, checkOverlaps);
     X_pos = X_pos + 1. * detUnit_XY;
   }
 

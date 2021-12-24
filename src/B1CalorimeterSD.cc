@@ -80,12 +80,11 @@ void B1CalorimeterSD::Initialize(G4HCofThisEvent* hce)
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 // 探测器灵敏区域每一个Step完成时被调用，相当于SteppingAction
-G4bool B1CalorimeterSD::ProcessHits(G4Step* step, 
-                                     G4TouchableHistory*)
+G4bool B1CalorimeterSD::ProcessHits(G4Step* step,  G4TouchableHistory*)
 {  
   // energy deposit
   auto edep = step->GetTotalEnergyDeposit();
-  
+
   // step length
   G4double stepLength = 0.;
   if ( step->GetTrack()->GetDefinition()->GetPDGCharge() != 0. ) {
