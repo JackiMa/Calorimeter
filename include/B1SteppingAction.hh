@@ -23,50 +23,38 @@
 // * acceptance of all terms of the Geant4 Software license.          *
 // ********************************************************************
 //
-//
-/// \file B1ActionInitialization.cc
-/// \brief Implementation of the B1ActionInitialization class
+// 
+/// \file B1SteppingAction.hh
+/// \brief Definition of the B1SteppingAction class
 
-#include "B1ActionInitialization.hh"
-#include "B1PrimaryGeneratorAction.hh"
-#include "B1RunAction.hh"
-#include "B1EventAction.hh"
+#ifndef B1SteppingAction_h
+#define B1SteppingAction_h 1
 
-#include "B1SteppingAction.hh"
-#include "B1DetectorConstruction.hh"
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#include "G4UserSteppingAction.hh"
 
-B1ActionInitialization::B1ActionInitialization(B1DetectorConstruction* detConstruction)
- : G4VUserActionInitialization(),
- fDetConstruction(detConstruction)
-{}
+class B1DetectorConstruction;
+class B1EventAction;
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+/// Stepping action class.
+///
+/// In UserSteppingAction() there are collected the energy deposit and track 
+/// lengths of charged particles in Absober and Gap layers and
+/// updated in B1EventAction.
 
-B1ActionInitialization::~B1ActionInitialization()
-{}
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
-
-void B1ActionInitialization::BuildForMaster() const
+class B1SteppingAction : public G4UserSteppingAction
 {
-  B1RunAction* runAction = new B1RunAction;
-  SetUserAction(runAction);
-}
+public:
+  B1SteppingAction(const B1DetectorConstruction* detectorConstruction,
+                    B1EventAction* eventAction);
+  virtual ~B1SteppingAction();
+
+  virtual void UserSteppingAction(const G4Step* step);
+    
+private:
+  const B1DetectorConstruction* fDetConstruction;
+  B1EventAction*  fEventAction;  
+};
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-void B1ActionInitialization::Build() const
-{
-  SetUserAction(new B1PrimaryGeneratorAction);
-
-  B1RunAction* runAction = new B1RunAction;
-  SetUserAction(runAction);
-  
-  B1EventAction* eventAction = new B1EventAction(runAction);
-  SetUserAction(eventAction);
-
-  SetUserAction(new B1SteppingAction(fDetConstruction,eventAction)); // 注册SteppingAction
-}  
-
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+#endif

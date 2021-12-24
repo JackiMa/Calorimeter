@@ -45,13 +45,14 @@
 
 int gX_Layers,gY_Layers,gZ_Layers;
 G4double gdetUnit_XY;
+std::string csvFileName;
 
 namespace
 {
   void PrintUsage()
   {
     G4cerr << " Usage: " << G4endl;
-    G4cerr << " exampleB4c [-m macro ] [-u UIsession] [-t nThreads]" << G4endl;
+    G4cerr << " exampleB1c [-m macro ] [-u UIsession] [-t nThreads]" << G4endl;
     G4cerr << "   note: -t option is available only for multi-threaded mode."
            << G4endl;
   }
@@ -69,7 +70,7 @@ int main(int argc, char **argv)
   gY_Layers = 10;
   gZ_Layers = 67;
   gdetUnit_XY = 40.4;
-
+  csvFileName = "result.csv";
 
   // Evaluate arguments
   //
@@ -132,7 +133,8 @@ int main(int argc, char **argv)
   // Set mandatory initialization classes
   //
   // Detector construction
-  runManager->SetUserInitialization(new B1DetectorConstruction(gX_Layers,gY_Layers,gZ_Layers,gdetUnit_XY));
+    auto detConstruction = new B1DetectorConstruction(gX_Layers,gY_Layers,gZ_Layers,gdetUnit_XY);
+  runManager->SetUserInitialization(detConstruction);
 
   // Physics list
   G4VModularPhysicsList *physicsList = new QBBC;
@@ -140,7 +142,7 @@ int main(int argc, char **argv)
   runManager->SetUserInitialization(physicsList);
 
   // User action initialization
-  runManager->SetUserInitialization(new B1ActionInitialization());
+  runManager->SetUserInitialization(new B1ActionInitialization(detConstruction));
 
   // Initialize visualization
   //

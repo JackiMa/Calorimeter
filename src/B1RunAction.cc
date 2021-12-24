@@ -35,7 +35,9 @@
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+//....oooOO0OOooo........oooOO0OOooo..... ...oooOO0OOooo........oooOO0OOooo......
+
+extern std::string csvFileName; // 在主函数里声明的文件名
 
 B1RunAction::B1RunAction()
 : G4UserRunAction()
@@ -46,7 +48,7 @@ B1RunAction::B1RunAction()
 
   // Create analysis manager
   // The choice of analysis technology is done via selectin of a namespace
-  // in B4Analysis.hh
+  // in B1Analysis.hh
   auto analysisManager = G4AnalysisManager::Instance();
   G4cout << "Using " << analysisManager->GetType() << G4endl;
 
@@ -71,9 +73,14 @@ B1RunAction::B1RunAction()
   analysisManager->CreateNtupleIColumn("x_index"); // 将cellID拆成xyz坐标
   analysisManager->CreateNtupleIColumn("y_index");
   // analysisManager->CreateNtupleIColumn("z_index"); // 被折叠了
+  analysisManager->CreateNtupleDColumn("PrimaryPointX"); //浮点型，初级作用点的X坐标
+  analysisManager->CreateNtupleDColumn("PrimaryPointY"); //浮点型
+  analysisManager->CreateNtupleDColumn("PrimaryPointZ"); //浮点型
   analysisManager->CreateNtupleDColumn("Edep"); //浮点型
 
   analysisManager->FinishNtuple(); // 创建好所有的Ntuple Colum后调用Finish
+
+
 
 }
 
@@ -100,6 +107,22 @@ void B1RunAction::BeginOfRunAction(const G4Run* run)
   
   G4String fileName = "myB1_"+ std::to_string(runID);
   analysisManager->OpenFile(fileName);
+
+  if(runID == 0){
+      // 创建csv文件
+    std::ofstream fout;                     //创建ofstream
+    fout.open(csvFileName, std::ios::app); //关联一个文件
+    fout << "eventID" << "\t";
+    fout.width(4);
+    fout << "cellID" << "\t"
+         << "x_index" << "\t"
+         << "y_index" << "\t"
+         << "primaryPoint.x" << "\t"
+         << "primaryPoint.y" << "\t"
+         << "primaryPoint.z" << "\t"
+         << "cellEdep" << std::endl; //写入
+    fout.close();                  //关闭
+  }
 
 }
 

@@ -63,9 +63,9 @@ class B1CalorimeterSD : public G4VSensitiveDetector
 
   public:
     B1CalorHitsCollection* fHitsCollection;
-    G4int  fNofCells;
     G4int   cellID; // 灵敏体积的copynumber
     G4int X_Layers, Y_Layers, Z_Layers;
+    G4int  fNofCells;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

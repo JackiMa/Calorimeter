@@ -24,11 +24,11 @@
 // ********************************************************************
 //
 //
-/// \file B4Analysis.hh
+/// \file B1Analysis.hh
 /// \brief Selection of the analysis technology
 
-#ifndef B4Analysis_h
-#define B4Analysis_h 1
+#ifndef B1Analysis_h
+#define B1Analysis_h 1
 
 #include "g4root.hh"
 //#include "g4csv.hh"

@@ -35,31 +35,39 @@
 #include "B1CalorHit.hh"
 
 class B1RunAction;
-
+struct Points
+{
+  G4double x; // x 坐标
+  G4double y; // y 坐标
+  G4double z; // z 坐标
+  bool isDefined; // 是否被定义了，只有被定义了才有值
+};
 /// Event action class
 ///
 
 class B1EventAction : public G4UserEventAction
 {
-  public:
-    B1EventAction(B1RunAction* runAction);
-    virtual ~B1EventAction();
+public:
+  B1EventAction(B1RunAction *runAction);
+  virtual ~B1EventAction();
 
-    virtual void BeginOfEventAction(const G4Event* event);
-    virtual void EndOfEventAction(const G4Event* event);
+  virtual void BeginOfEventAction(const G4Event *event);
+  virtual void EndOfEventAction(const G4Event *event);
 
 private:
   // methods
-  B1CalorHitsCollection* GetHitsCollection(G4int hcID,
-                                            const G4Event* event) const;
+  B1CalorHitsCollection *GetHitsCollection(G4int hcID,
+                                           const G4Event *event) const;
   void PrintEventStatistics(G4double absoEdep) const;
-  
-  // data members                   
-  G4int  fAbsHCID;
+
+  // data members
+  G4int fAbsHCID;
+
+public:
+  Points primaryPoint; // 初级作用点的坐标
+
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 #endif
-
-    
